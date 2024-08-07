@@ -1,7 +1,27 @@
+import fg from 'fast-glob'
+
+function getPackages(packagePath) {
+  return fg.sync('*', { cwd: packagePath, onlyDirectories: true })
+}
+
+const scopes = [
+  ...getPackages('packages'),
+  'project',
+  'ci',
+  'deploy',
+  'other',
+]
+
 /** @type {import('cz-git').UserConfig} */
 export default {
   extends: ['@commitlint/config-conventional'],
+
   rules: {
+    'scope-enum': [
+      2,
+      'always',
+      scopes,
+    ],
     'type-enum': [
       2,
       'always',
@@ -28,7 +48,7 @@ export default {
     alias: {
       fd: 'docs: fix typos',
     },
-    scopes: [],
+    scopes,
     messages: {
       scope: '选择一个提交范围: (按 Enter 跳过)\n',
       customScope: '请输入自定义的提交范围 :',
@@ -60,9 +80,9 @@ export default {
     useEmoji: false,
     emojiAlign: 'center',
     themeColorCode: '',
-    enableMultipleScopes: false,
-    allowCustomScopes: true,
-    allowEmptyScopes: true,
+    enableMultipleScopes: true,
+    allowCustomScopes: false,
+    allowEmptyScopes: false,
     customScopesAlign: 'bottom',
     customScopesAlias: 'custom',
     emptyScopesAlias: 'empty',

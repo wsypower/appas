@@ -10,5 +10,10 @@
     "esModuleInterop": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
-  }
+  },
+  "include": [
+    "packages/*/src",
+    "packages/*/__tests__",
+    "types/*.d.ts"
+  ]
 }
