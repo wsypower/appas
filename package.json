@@ -16,9 +16,11 @@
     "node": ">=18.12 || >=20.9"
   },
   "scripts": {
+    "build": "pnpm turbo run build",
+    "stub": "pnpm turbo run stub",
+    "link": "pnpm turbo run link",
     "commit": "git cz",
     "bootstrap": "pnpm install",
-    "build": "pnpm turbo run build",
     "clean": "pnpm turbo run clean && rimraf node_modules dist",
     "release": "bumpp -r",
     "lint": "eslint .",

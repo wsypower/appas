@@ -61,7 +61,17 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(typescript@5.5.4)
 
-  packages/apaas: {}
+  packages/apaas:
+    dependencies:
+      '@pubinfo/apaas-adapter':
+        specifier: workspace:^
+        version: link:../apaas-adapter
+
+  packages/apaas-adapter:
+    dependencies:
+      vite:
+        specifier: ^5.4.0
+        version: 5.4.0(@types/node@20.12.7)
 
   packages/core: {}
 

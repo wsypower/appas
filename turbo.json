@@ -11,6 +11,7 @@
       "outputLogs": "new-only"
     },
     "stub": {},
+    "link": {},
     "lint": {
       "cache": false
     },
@@ -18,16 +19,6 @@
       "dependsOn": [
         "^clean"
       ]
-    },
-    "test": {
-      "dependsOn": [
-        "^test"
-      ],
-      "outputs": []
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
     }
   }
 }

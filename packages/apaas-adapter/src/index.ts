@@ -1,12 +1,13 @@
-import type { Plugin } from 'vite'
+import type { PluginOption } from 'vite'
 
-export function VitePluginApaasAdapter(): Plugin {
+export function VitePluginApaasAdapter(): PluginOption {
   return {
     name: 'vite-plugin-apaas-adapter',
     apply: 'build',
     enforce: 'pre',
-    configureServer() {
-
+    configResolved() {
+      // eslint-disable-next-line no-console
+      console.log('我执行了')
     },
   }
 }
