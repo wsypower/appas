@@ -1,5 +1,8 @@
-import type { Plugin } from 'vite'
+import type { PluginOption } from 'vite'
+import { VitePluginApaasAdapter } from '@pubinfo/apaas-adapter'
 
-export function VitePluginApaas(): Array<Plugin> {
-  return []
+export function VitePluginApaas(): PluginOption {
+  return [
+    VitePluginApaasAdapter(),
+  ]
 }
