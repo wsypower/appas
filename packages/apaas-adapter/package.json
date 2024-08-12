@@ -12,14 +12,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
-    },
-    "./virtual": "./virtual/injectionApaas.ts"
+    }
   },
   "main": "./dist/index.mjs",
   "module": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "./virtual/injectionApaas.ts",
     "dist"
   ],
   "scripts": {
