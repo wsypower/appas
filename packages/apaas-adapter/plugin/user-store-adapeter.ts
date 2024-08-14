@@ -8,7 +8,7 @@ import generator from '@babel/generator'
 export function userStoreAdapter(): Plugin {
   const adapeter = template.ast(`
     async function getPermissions() {
-      const apaasAuth = JSON.parse(sessionStorage.getItem('LOGIN_USER_BUTTON_AUTH') || '{}');
+      const apaasAuth = JSON.parse(sessionStorage.getItem('LOGIN_USER_BUTTON_AUTH') || '[]');
       const res = apaasAuth.map((item) => {
         const code = item.action.split('.').at(-1);
         return code;
