@@ -103,7 +103,7 @@ export function adapterMain(): Plugin {
     // 修改main文件
     transform(code, id) {
       // 检查是否是main文件
-      if (id.endsWith('/src/main.js') || id.endsWith('/src/main.ts')) {
+      if (id.endsWith('/src/main.ts')) {
         const ms = new MagicString(code)
 
         // 插入 import 语句

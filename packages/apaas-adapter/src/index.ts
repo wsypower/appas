@@ -36,7 +36,7 @@ export function VitePluginApaasAdapter(): PluginOption {
         if (isFunction(pluginsHook.load)) {
           const result = pluginsHook.load.call(this, ...args)
           if (result) {
-            return result // 确保返回加载的模块内容
+            return result
           }
         }
       }
@@ -47,7 +47,7 @@ export function VitePluginApaasAdapter(): PluginOption {
         if (isFunction(pluginsHook.transform)) {
           const result = pluginsHook.transform.call(this, code, id)
           if (result) {
-            return result // 确保返回修改后的代码
+            return result
           }
         }
       }
