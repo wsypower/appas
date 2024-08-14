@@ -1,10 +1,12 @@
 import type { Plugin, PluginOption } from 'vite'
 import { isFunction } from 'radash'
 import { adapterMain } from '../plugin/resolve-adapter'
+import { userStoreAdapter } from '../plugin/user-store-adapeter'
 
 export function VitePluginApaasAdapter(): PluginOption {
   const pluginsList: Plugin[] = [
     adapterMain(),
+    userStoreAdapter(),
   ]
   return {
     name: 'vite-plugin-apaas-adapter',

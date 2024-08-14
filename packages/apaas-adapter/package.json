@@ -29,5 +29,18 @@
     "magic-string": "^0.30.11",
     "radash": "^12.1.0",
     "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/generator": "^7.25.0",
+    "@babel/parser": "^7.25.3",
+    "@babel/preset-typescript": "^7.24.7",
+    "@babel/template": "^7.25.0",
+    "@babel/traverse": "^7.25.3",
+    "@babel/types": "^7.25.2",
+    "@swc/core": "^1.7.10",
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__template": "^7.4.4",
+    "@types/babel__traverse": "^7.20.6"
   }
 }

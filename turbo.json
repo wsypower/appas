@@ -10,8 +10,12 @@
       ],
       "outputLogs": "new-only"
     },
-    "stub": {},
-    "link": {},
+    "stub": {
+      "cache": false
+    },
+    "link": {
+      "cache": false
+    },
     "lint": {
       "cache": false
     },
