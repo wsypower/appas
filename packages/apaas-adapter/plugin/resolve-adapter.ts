@@ -54,7 +54,7 @@ function adapterContainer(app) {
   });
 }
 
-function adapterToken() {
+export function adapterToken() {
   const token = sessionStorage.getItem('Access-Token');
   const userStore = useUserStore();
   userStore.user.token = token;
@@ -108,7 +108,13 @@ export function adapterMain(): Plugin {
 
         // 插入 import 语句
         const importIndex = code.indexOf('import')
-        ms.appendLeft(importIndex, `import { adapterApaas } from 'virtual:isApaas';\n`)
+        ms.appendLeft(importIndex, `import { adapterApaas,adapterToken } from 'virtual:isApaas';\n`)
+
+        const setupStoreIndex = code.indexOf('setupStore(app);')
+        ms.appendRight(
+          setupStoreIndex + 'setupStore(app);'.length,
+          `\n  adapterToken();`,
+        )
 
         // 插入函数调用
         const mountIndex = code.indexOf('app.mount(\'#app\');')
