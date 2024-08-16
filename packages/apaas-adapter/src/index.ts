@@ -25,15 +25,20 @@ export function VitePluginApaasAdapter(): PluginOption {
   return {
     name: 'vite-plugin-apaas-adapter',
     enforce: 'pre',
-    async config(config) {
+    async config(userConfig) {
       // apaas 配置需要抹掉vite-plugin-env-runtime插件
-      if (config.plugins) {
-        config.plugins = config.plugins.filter((plugin) => {
+      if (userConfig.plugins) {
+        const index = userConfig.plugins.findIndex((plugin) => {
           if (typeof plugin !== 'object' || Array.isArray(plugin) || plugin instanceof Promise) {
-            return true
+            return false
           }
-          return plugin?.name !== 'vite-plugin-env-runtime'
+          return plugin?.name === 'vite-plugin-env-runtime'
         })
+
+        if (index !== -1) {
+          // 将该插件位置设置为 null 或 undefined
+          userConfig.plugins[index] = null // 或者设置为 undefined
+        }
       }
       const { config: apassUserConfig } = await loadConfig<ApaasConfig>({
         name: 'apaas',
@@ -44,14 +49,10 @@ export function VitePluginApaasAdapter(): PluginOption {
       })
       const apaasConfig = normalizeConfig(apassUserConfig)
       ctx.setConfig(apaasConfig)
-      return config
     },
-    configResolved(config) {
-      for (const pluginsHook of pluginsList) {
-        if (isFunction(pluginsHook.configResolved)) {
-          pluginsHook.configResolved.call(this, config)
-        }
-      }
+
+    configResolved(ResolvedConfig) {
+      ctx.createContext(ResolvedConfig)
     },
     resolveId(...args) {
       for (const pluginsHook of pluginsList) {
@@ -75,6 +76,7 @@ export function VitePluginApaasAdapter(): PluginOption {
       }
       return null
     },
+
     transform(code, id) {
       for (const pluginsHook of pluginsList) {
         if (isFunction(pluginsHook.transform)) {
@@ -85,6 +87,14 @@ export function VitePluginApaasAdapter(): PluginOption {
         }
       }
       return null
+    },
+
+    generateBundle(...args) {
+      for (const pluginsHook of pluginsList) {
+        if (isFunction(pluginsHook.generateBundle)) {
+          pluginsHook.generateBundle.call(this, ...args)
+        }
+      }
     },
   }
 }
