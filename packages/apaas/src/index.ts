@@ -1,8 +1,13 @@
 import type { PluginOption } from 'vite'
-import { VitePluginApaasAdapter } from '@pubinfo/apaas-adapter'
+import { VitePluginApaasAdapter, defineConfig } from '@pubinfo/apaas-adapter'
 
-export function VitePluginApaas(): PluginOption {
+function VitePluginApaas(): PluginOption {
   return [
     VitePluginApaasAdapter(),
   ]
+}
+
+export {
+  VitePluginApaas,
+  defineConfig,
 }

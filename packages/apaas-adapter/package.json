@@ -41,6 +41,7 @@
     "@swc/core": "^1.7.10",
     "@types/babel__generator": "^7.6.8",
     "@types/babel__template": "^7.4.4",
-    "@types/babel__traverse": "^7.20.6"
+    "@types/babel__traverse": "^7.20.6",
+    "c12": "^1.11.1"
   }
 }
