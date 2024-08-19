@@ -2,15 +2,18 @@
   "name": "@pubinfo/apaas",
   "type": "module",
   "version": "0.0.10",
-  "description": "",
+  "description": "apaas vite适配插件",
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/wsypower/appas.git",
     "directory": "packages/apaas"
   },
-  "keywords": [],
+  "keywords": [
+    "vite",
+    "apaas"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
