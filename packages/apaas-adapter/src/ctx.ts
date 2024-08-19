@@ -4,12 +4,17 @@ export class Ctx {
   base: string = ''
   config!: Record<string, any>
   outDir: string = ''
+  replaceKeys!: Map<string, string>
   setConfig(config: Record<string, any>) {
     this.config = config
   }
 
   getConfig() {
     return this.config
+  }
+
+  setReplaceKey(replaceKeys: Map<string, string>) {
+    this.replaceKeys = replaceKeys
   }
 
   createContext(ResolvedConfig: ResolvedConfig) {

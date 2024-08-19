@@ -33,13 +33,15 @@ export function VitePluginApaasAdapter(): PluginOption {
           url: [],
         },
       })
-      const apaasConfig = normalizeConfig(apassUserConfig)
-      ctx.setConfig(apaasConfig)
+      const { map, config } = normalizeConfig(apassUserConfig)
+      ctx.setConfig(config)
+      ctx.setReplaceKey(map)
     },
 
     configResolved(ResolvedConfig) {
       ctx.createContext(ResolvedConfig)
     },
+
     resolveId(...args) {
       for (const pluginsHook of pluginsList) {
         if (isFunction(pluginsHook.resolveId)) {
@@ -51,6 +53,7 @@ export function VitePluginApaasAdapter(): PluginOption {
       }
       return null
     },
+
     load(...args) {
       for (const pluginsHook of pluginsList) {
         if (isFunction(pluginsHook.load)) {

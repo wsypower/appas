@@ -1,6 +1,5 @@
-export const BASIC_URL = new Map()
-
 export function normalizeConfig(userConfig: ApaasConfig) {
+  const map = new Map<string, string>()
   const config: Record<string, any> = {}
   for (const key of Object.keys(userConfig)) {
     switch (key) {
@@ -10,11 +9,11 @@ export function normalizeConfig(userConfig: ApaasConfig) {
       case 'url':
         for (const item of userConfig[key]) {
           config[item.name] = item.placeholder
-          BASIC_URL.set(item.replace, item.name)
+          map.set(item.replace, item.name)
         }
         break
     }
   }
 
-  return config
+  return { map, config }
 }
