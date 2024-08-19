@@ -1,9 +1,9 @@
 import type { ResolvedConfig } from 'vite'
 
 export class Ctx {
+  base: string = ''
   config!: Record<string, any>
   outDir: string = ''
-  base: string = ''
   setConfig(config: Record<string, any>) {
     this.config = config
   }
@@ -14,6 +14,7 @@ export class Ctx {
 
   createContext(ResolvedConfig: ResolvedConfig) {
     this.outDir = ResolvedConfig.build.outDir
+    this.base = ResolvedConfig.base
   }
 
   createMicroServiceConfig(): string {

@@ -8,6 +8,20 @@ import ctx from '../src/ctx'
 export function apaasConfig(): Plugin {
   return {
     name: 'apaas-config',
+    transformIndexHtml(html) {
+      const modifiedHtml = html
+        .replace('<link rel="stylesheet" href="/loading.css" />', '')
+        .replace('<link rel="stylesheet" href="/browser_upgrade/index.css" />', '')
+        .replace(
+          /<div class="w-admin-home">[\s\S]*?<\/div>[\s\S]*?<div id="browser-upgrade">[\s\S]*?<\/div>/,
+          '',
+        ).replace(
+          '</head>',
+          `<script src="${ctx.base}config/micro-service-config.js"></script></head>`,
+        )
+
+      return modifiedHtml
+    },
     // 处理模块解析
     generateBundle() {
       const fileContent = ctx.createMicroServiceConfig()

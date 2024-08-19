@@ -25,21 +25,7 @@ export function VitePluginApaasAdapter(): PluginOption {
   return {
     name: 'vite-plugin-apaas-adapter',
     enforce: 'pre',
-    async config(userConfig) {
-      // apaas 配置需要抹掉vite-plugin-env-runtime插件
-      if (userConfig.plugins) {
-        const index = userConfig.plugins.findIndex((plugin) => {
-          if (typeof plugin !== 'object' || Array.isArray(plugin) || plugin instanceof Promise) {
-            return false
-          }
-          return plugin?.name === 'vite-plugin-env-runtime'
-        })
-
-        if (index !== -1) {
-          // 将该插件位置设置为 null 或 undefined
-          userConfig.plugins[index] = null // 或者设置为 undefined
-        }
-      }
+    async config() {
       const { config: apassUserConfig } = await loadConfig<ApaasConfig>({
         name: 'apaas',
         defaultConfig: {
@@ -87,6 +73,17 @@ export function VitePluginApaasAdapter(): PluginOption {
         }
       }
       return null
+    },
+
+    transformIndexHtml(...args) {
+      for (const pluginsHook of pluginsList) {
+        if (isFunction(pluginsHook.transformIndexHtml)) {
+          const result = pluginsHook.transformIndexHtml.call(this, ...args)
+          if (result) {
+            return result
+          }
+        }
+      }
     },
 
     generateBundle(...args) {
