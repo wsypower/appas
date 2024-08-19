@@ -8,6 +8,7 @@ import { routerAdapter } from '../plugin/router-adapter'
 import { normalizeConfig } from '../utils/index'
 import { apaasConfig } from '../plugin/apaas-config'
 import { adapterMain } from '../plugin/resolve-adapter'
+import { createDocker } from '../plugin/create-docker'
 import ctx from './ctx'
 
 export function defineConfig(config: SimplifyDeep<Partial<ApaasConfig>>) {
@@ -21,6 +22,7 @@ export function VitePluginApaasAdapter(): PluginOption {
     userStoreAdapter(),
     requestAdapter(),
     routerAdapter(),
+    createDocker(),
   ]
   return {
     name: 'vite-plugin-apaas-adapter',

@@ -56,6 +56,7 @@ export function apaasConfig(): Plugin {
 
       return modifiedHtml
     },
+
     // 处理模块解析
     generateBundle() {
       const fileContent = ctx.createMicroServiceConfig()
@@ -65,9 +66,10 @@ export function apaasConfig(): Plugin {
         source: fileContent,
       })
     },
+
     async buildEnd() {
       const fileContent = ctx.createMicroServiceConfig()
-      const targetDir = resolve(process.cwd(), 'apaas')
+      const targetDir = resolve(process.cwd(), ctx.apaasOutputDir)
       const outputFileName = resolve(targetDir, 'micro-service-config.js')
 
       mkdirSync(targetDir, { recursive: true })
