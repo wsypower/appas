@@ -10,6 +10,10 @@
     "url": "https://github.com/wsypower/appas.git",
     "directory": "packages/apaas"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "keywords": [
     "vite",
     "apaas"
