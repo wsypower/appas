@@ -35,7 +35,11 @@ export function apaasConfig(): Plugin {
         if (s.hasChanged()) {
           return {
             code: s.toString(),
-            map: s.generateMap({ hires: true }),
+            map: s.generateMap({
+              source: id,
+              includeContent: true,
+              hires: true,
+            }),
           }
         }
       }
@@ -47,11 +51,8 @@ export function apaasConfig(): Plugin {
         .replace('<link rel="stylesheet" href="/loading.css" />', '')
         .replace('<link rel="stylesheet" href="/browser_upgrade/index.css" />', '')
         .replace(
-          /<div class="w-admin-home">[\s\S]*?<\/div>[\s\S]*?<div id="browser-upgrade">[\s\S]*?<\/div>/,
-          '',
-        ).replace(
-          '</head>',
-          `<script src="${ctx.base}config/micro-service-config.js"></script></head>`,
+          /<div id="app">[\s\S]*?<\/div>\s*<script>/,
+          '<div id="app"></div><script src="/configs/micro-service-config.js"></script><script>',
         )
 
       return modifiedHtml

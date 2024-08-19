@@ -67,11 +67,9 @@ export function apaasClean() {
 }
 
 export function adapterApaas(app) {
-  if (isApass()) {
-    adapterStyle(app);
-    adapterContainer(app);
-    adapterToken();
-  }
+  adapterStyle(app);
+  adapterContainer(app);
+  adapterToken();
 }
 
 `
