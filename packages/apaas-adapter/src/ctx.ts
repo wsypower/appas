@@ -15,6 +15,15 @@ export class Ctx {
   createContext(ResolvedConfig: ResolvedConfig) {
     this.outDir = ResolvedConfig.build.outDir
   }
+
+  createMicroServiceConfig(): string {
+    return `
+/* eslint-disable no-template-curly-in-string */
+window.bootConfig = {
+  production: ${JSON.stringify(this.getConfig(), null, 2)},
+};
+`
+  }
 }
 
 export default new Ctx()

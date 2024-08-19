@@ -96,5 +96,14 @@ export function VitePluginApaasAdapter(): PluginOption {
         }
       }
     },
+
+    async buildEnd(...args) {
+      for (const pluginsHook of pluginsList) {
+        if (isFunction(pluginsHook.buildEnd)) {
+          await pluginsHook.buildEnd.call(this, ...args)
+        }
+      }
+    },
+
   }
 }
