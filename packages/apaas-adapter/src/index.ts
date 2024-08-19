@@ -24,6 +24,7 @@ export function VitePluginApaasAdapter(): PluginOption {
     routerAdapter(),
     createDocker(),
   ]
+
   return {
     name: 'vite-plugin-apaas-adapter',
     enforce: 'pre',
