@@ -5,6 +5,11 @@
   "description": "",
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wsypower/appas.git",
+    "directory": "packages/apaas"
+  },
   "keywords": [],
   "exports": {
     ".": {
