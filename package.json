@@ -28,7 +28,8 @@
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
     "dep:view": "npx taze -r ",
-    "dep:update": "npx taze major -wr"
+    "dep:update": "npx taze major -wr",
+    "publish": "pnpm publish"
   },
   "dependencies": {
     "consola": "^3.2.3",

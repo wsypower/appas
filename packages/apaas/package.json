@@ -23,7 +23,8 @@
     "build": "unbuild",
     "clean": "pnpm rimraf node_modules dist .turbo",
     "stub": "unbuild --stub",
-    "link": "pnpm link --global"
+    "link": "pnpm link --global",
+    "publish": "pnpm publish  --access public"
   },
   "peerDependencies": {
     "vite": "^5.4.0"
