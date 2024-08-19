@@ -23,9 +23,6 @@
       "dependsOn": [
         "^clean"
       ]
-    },
-    "publish": {
-      "cache": false
     }
   }
 }
