@@ -1,5 +1,5 @@
 {
-  "name": "@pubinfo/apaas",
+  "name": "@pubinfo/cover-apaas",
   "type": "module",
   "version": "0.0.12",
   "description": "apaas vite适配插件",
