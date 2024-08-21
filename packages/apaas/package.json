@@ -1,5 +1,5 @@
 {
-  "name": "@pubinfo/apaas",
+  "name": "@pubinfo/routes",
   "type": "module",
   "version": "0.0.15",
   "description": "apaas vite适配插件",
@@ -41,6 +41,7 @@
     "vite": "^5.4.0"
   },
   "dependencies": {
-    "@pubinfo/apaas-adapter": "workspace:^"
+    "@pubinfo/apaas-adapter": "workspace:^",
+    "@pubinfo/apaas-routes": "workspace:^"
   }
 }
