@@ -5,8 +5,21 @@
   "private": true,
   "description": "",
   "author": "",
-  "license": "ISC",
-  "keywords": [],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wsypower/appas.git",
+    "directory": "packages/apaas-routes"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "vite",
+    "apaas",
+    "apaas-router"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
