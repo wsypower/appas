@@ -1,5 +1,5 @@
 {
-  "name": "@pubinfo/routes",
+  "name": "@pubinfo/apaas",
   "type": "module",
   "version": "1.0.0-beta.2",
   "description": "apaas vite适配插件",
