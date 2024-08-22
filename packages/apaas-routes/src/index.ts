@@ -8,6 +8,7 @@ import type { NodePath, Scope } from '@babel/traverse'
 import traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import generate from '@babel/generator'
+import { cloneDeep } from 'lodash-es'
 
 function resolveRoutes(
   id: string,
@@ -73,7 +74,7 @@ async function resolveModule(
 
   const asyncTasks: Promise<void>[] = []
 
-  // 将依赖的模块解析并替换到指定为止
+  // 将依赖的模块解析并替换到指定位置
   traverse(asyncRoutes.node, {
     ObjectProperty(path) {
       const { node, scope } = path
@@ -120,10 +121,10 @@ async function resolveModule(
     ObjectExpression(path) {
       const { node } = path
 
-      // sidebar 为 false 时，删除该路由
-      const meta = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }))
-      if (meta && t.isObjectProperty(meta) && t.isObjectExpression(meta.value)) {
-        const sidebarProperty = meta.value.properties.find((p) => {
+      const metaProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }))
+      if (metaProperty && t.isObjectProperty(metaProperty) && t.isObjectExpression(metaProperty.value)) {
+        // sidebar 为 false 时，删除该路由
+        const sidebarProperty = metaProperty.value.properties.find((p) => {
           return t.isObjectProperty(p)
             && t.isIdentifier(p.key, { name: 'sidebar' })
             && t.isBooleanLiteral(p.value, { value: false })
@@ -132,67 +133,86 @@ async function resolveModule(
         if (sidebarProperty) {
           path.remove()
         }
-      }
 
-      // 添加 permType
-      const permType = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permType' }))
-      if (!permType) {
-        node.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('sider')))
-      }
-
-      // 添加 按钮级路由
-      // const children = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'children' }))
-      // const isLeaf = !children || (children && t.isObjectProperty(children) && t.isArrayExpression(children.value) && children.value.elements.length === 0)
-      // if (isLeaf && t.isObjectProperty(permType) && t.isStringLiteral(permType.value, { value: 'sidebar' })) {
-      //   const _node = cloneDeep(node)
-      //   _node.properties.forEach((p) => {
-      //     if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permType' })) {
-      //       p.value = t.stringLiteral('module')
-      //     }
-      //   })
-      //   node.properties.push(t.objectProperty(t.identifier('children'), t.arrayExpression([_node])))
-      // }
-    },
-    ObjectProperty(path) {
-      const { node } = path
-      if (!t.isIdentifier(node.key)) {
-        path.remove()
-        return
-      }
-
-      // 添加 permPath
-      if (t.isIdentifier(node.key, { name: 'path' })) {
-        node.key.name = 'permPath'
-        if (t.isStringLiteral(node.value) && !node.value.value.startsWith('/')) {
-          node.value = t.stringLiteral(`${node.value.value}`)
-        }
-      }
-
-      // 检查属性是否为 meta，并且该属性是一个对象
-      if (t.isIdentifier(node.key, { name: 'meta' }) && t.isObjectExpression(node.value)) {
-        // 遍历 meta 对象的属性
-        node.value.properties.forEach((property) => {
-          if (!t.isObjectProperty(property)) {
+        // 重命名
+        metaProperty.value.properties.forEach((p) => {
+          if (!t.isObjectProperty(p)) {
             return
           }
 
-          // 添加 permName
-          if (t.isIdentifier(property.key, { name: 'title' })) {
-            path.insertBefore(t.objectProperty(t.identifier('permName'), property.value))
+          // 添加 permCode
+          if (t.isIdentifier(p.key, { name: 'auth' })) {
+            node.properties.unshift(t.objectProperty(t.identifier('permCode'), p.value))
           }
 
-          // 添加 permCode
-          if (t.isIdentifier(property.key, { name: 'auth' })) {
-            path.insertBefore(t.objectProperty(t.identifier('permCode'), property.value))
+          // 添加 permName
+          if (t.isIdentifier(p.key, { name: 'title' })) {
+            node.properties.unshift(t.objectProperty(t.identifier('permName'), p.value))
           }
         })
 
-        path.remove()
-        return
+        // 移除 meta
+        node.properties = node.properties.filter((p) => {
+          return !(t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }))
+        })
       }
 
+      // 添加 permPath
+      node.properties.forEach((p) => {
+        if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'path' })) {
+          p.key.name = 'permPath'
+
+          if (t.isStringLiteral(p.value) && !p.value.value.startsWith('/')) {
+            const parentPath = path.findParent(p => p.isObjectExpression())
+            if (parentPath && t.isObjectExpression(parentPath.node)) {
+              const parentRoutePathProperty = parentPath.node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permPath' }))
+              if (
+                parentRoutePathProperty
+                && t.isObjectProperty(parentRoutePathProperty)
+                && t.isStringLiteral(parentRoutePathProperty.value)
+              ) {
+                const routePath = `${parentRoutePathProperty.value.value}/${p.value.value}`.replace('\/\/', '\/')
+                p.value = t.stringLiteral(routePath)
+              }
+            }
+          }
+        }
+      })
+
+      // 添加 permType
+      const permTypeProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permType' }))
+      if (!permTypeProperty) {
+        node.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('sider')))
+
+        // 如果是叶子节点，则为其添加按钮级路由
+        const children = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'children' }))
+        const isLeaf = !children || (children && t.isObjectProperty(children) && t.isArrayExpression(children.value) && children.value.elements.length === 0)
+        if (isLeaf) {
+          const leafNode = cloneDeep(node)
+          leafNode.properties = leafNode.properties.filter((p) => {
+            if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permPath' })) {
+              return false
+            }
+            if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permType' })) {
+              return false
+            }
+            return true
+          })
+          leafNode.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('module')))
+          node.properties.push(t.objectProperty(t.identifier('children'), t.arrayExpression([leafNode])))
+        }
+
+        // 菜单级路由移除 permCode
+        node.properties = node.properties.filter((p) => {
+          return !(t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permCode' }))
+        })
+      }
+    },
+    ObjectProperty(path) {
+      const { node } = path
       const transformKeys = ['permType', 'permPath', 'permName', 'permCode', 'permDes', 'children']
-      if (!transformKeys.includes(node.key.name)) {
+
+      if (!t.isIdentifier(node.key) || !transformKeys.includes(node.key.name)) {
         path.remove()
       }
     },
