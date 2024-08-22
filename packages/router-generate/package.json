@@ -1,8 +1,8 @@
 {
-  "name": "@pubinfo/apaas-adapter",
+  "name": "@pubinfo/apaas-router-generate",
   "type": "module",
   "version": "1.0.0-beta.2",
-  "description": "apaas vite适配插件",
+  "description": "vue router 适配apaas生成器",
   "author": "",
   "license": "MIT",
   "repository": {
@@ -16,7 +16,8 @@
   },
   "keywords": [
     "vite",
-    "apaas"
+    "apaas",
+    "apaas-router"
   ],
   "exports": {
     ".": {
@@ -53,6 +54,6 @@
     "@types/babel__generator": "^7.6.8",
     "@types/babel__template": "^7.4.4",
     "@types/babel__traverse": "^7.20.6",
-    "c12": "^1.11.1"
+    "esbuild": "^0.23.1"
   }
 }

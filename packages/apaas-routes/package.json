@@ -34,9 +34,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "unbuild",
-    "clean": "pnpm rimraf node_modules dist .turbo",
-    "stub": "unbuild --stub"
+
   },
   "peerDependencies": {
     "consola": "^3.2.3",

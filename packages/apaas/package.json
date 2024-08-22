@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@pubinfo/apaas-adapter": "workspace:^",
+    "@pubinfo/apaas-router-generate": "workspace:^",
     "@pubinfo/apaas-routes": "workspace:^"
   }
 }
