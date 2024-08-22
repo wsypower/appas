@@ -2,7 +2,6 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import generate from '@babel/generator'
-import { cloneDeep } from 'lodash-es'
 import type { RoutesInfo } from './types'
 
 /**
@@ -86,7 +85,7 @@ export function transformCodeToApaas(routes: RoutesInfo) {
           const children = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'children' }))
           const isLeaf = !children || (children && t.isObjectProperty(children) && t.isArrayExpression(children.value) && children.value.elements.length === 0)
           if (isLeaf) {
-            const leafNode = cloneDeep(node)
+            const leafNode = t.cloneNode(node)
             leafNode.properties = leafNode.properties.filter((p) => {
               if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permPath' })) {
                 return false

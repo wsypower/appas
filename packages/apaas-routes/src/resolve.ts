@@ -29,6 +29,7 @@ export function readExportedRoutes(code: string, variableName: string) {
             scope,
             parentPath,
           }
+          path.stop()
         }
       }
     },
@@ -40,7 +41,11 @@ export function readExportedRoutes(code: string, variableName: string) {
 /**
  * @desc: 将依赖的模块解析并替换到指定位置
  */
-export async function resolveModule(routes: RoutesInfo, ctx: Rollup.TransformPluginContext, id: string) {
+export async function resolveModule(
+  routes: RoutesInfo,
+  ctx: Rollup.TransformPluginContext,
+  id: string,
+) {
   if (!routes.node) {
     return
   }
