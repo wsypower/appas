@@ -30,14 +30,20 @@ export function transformCodeToApaas(routes: RoutesInfo) {
             return
           }
 
-          // sidebar 为 false，删除该路由
-          const sidebarPropertyIsFalse = property.value.properties.find((p) => {
+          // meta.sidebar 为 false
+          const sidebarIsFalse = property.value.properties.some((p) => {
             return t.isObjectProperty(p)
               && t.isIdentifier(p.key, { name: 'sidebar' })
               && t.isBooleanLiteral(p.value, { value: false })
           })
 
-          if (sidebarPropertyIsFalse) {
+          // meta.auth 存在
+          const hasAuth = property.value.properties.some((p) => {
+            return t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'auth' })
+          })
+
+          // 移除路由
+          if (sidebarIsFalse && !hasAuth) {
             path.remove()
             return
           }
@@ -62,6 +68,13 @@ export function transformCodeToApaas(routes: RoutesInfo) {
               })
             }
           })
+
+          // 将该路由设置成按钮级路由
+          if (sidebarIsFalse && hasAuth) {
+            tasks.push(() => {
+              node.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('module')))
+            })
+          }
         })
 
         tasks.forEach(task => task())
@@ -127,25 +140,59 @@ export function transformCodeToApaas(routes: RoutesInfo) {
         const permTypeProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permType' }))
         if (!permTypeProperty) {
           node.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('sider')))
+        }
 
-          // 如果是叶子节点，则为其添加按钮级路由
+        // 判断是否为菜单级路由
+        if (node.properties.find(p =>
+          t.isObjectProperty(p)
+          && t.isIdentifier(p.key, { name: 'permType' })
+          && t.isStringLiteral(p.value, { value: 'sider' }))
+        ) {
+          // 如果是菜单级路由的最后一级，则为其 children 添加同名按钮级路由
           const childrenProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'children' }))
-          if (!childrenProperty) {
-            const leafNode = t.cloneNode(node)
-            leafNode.properties = leafNode.properties.filter((p) => {
-              return !(
-                t.isObjectProperty(p)
-                && t.isIdentifier(p.key)
-                && ['permPath', 'permType'].includes(p.key.name)
-              )
+          const moduleNode = t.cloneNode(node)
+          moduleNode.properties = moduleNode.properties.filter((p) => {
+            return !(
+              t.isObjectProperty(p)
+              && t.isIdentifier(p.key)
+              && ['permPath', 'permType', 'children'].includes(p.key.name)
+            )
+          })
+          moduleNode.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('module')))
+          if (
+            childrenProperty
+            && t.isObjectProperty(childrenProperty)
+            && t.isIdentifier(childrenProperty.key, { name: 'children' })
+            && t.isArrayExpression(childrenProperty.value)
+            && childrenProperty.value.elements.every((node) => {
+              return t.isObjectExpression(node)
+                && node.properties.find((p) => {
+                  return t.isObjectProperty(p)
+                    && t.isIdentifier(p.key, { name: 'permType' })
+                    && t.isStringLiteral(p.value, { value: 'module' })
+                })
             })
-            leafNode.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('module')))
-            node.properties.push(t.objectProperty(t.identifier('children'), t.arrayExpression([leafNode])))
+          ) {
+            childrenProperty.value.elements.unshift(moduleNode)
+          }
+          if (!childrenProperty) {
+            node.properties.push(t.objectProperty(t.identifier('children'), t.arrayExpression([moduleNode])))
           }
 
           // 菜单级路由移除 permCode
           node.properties = node.properties.filter((p) => {
             return !(t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permCode' }))
+          })
+        }
+
+        // 判断是否为按钮级菜单
+        if (node.properties.find(p =>
+          t.isObjectProperty(p)
+          && t.isIdentifier(p.key, { name: 'permType' })
+          && t.isStringLiteral(p.value, { value: 'module' }))
+        ) {
+          node.properties = node.properties.filter((p) => {
+            return !(t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permPath' }))
           })
         }
       },
