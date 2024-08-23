@@ -4,8 +4,10 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import type { PluginOption, Rollup } from 'vite'
 import consola from 'consola'
 import * as t from '@babel/types'
-import { transformCodeToApaas } from './format'
+
 import { readExportedRoutes, resolveModule } from './resolve'
+import { transformCodeToApaas } from './format'
+import { directivesMap, parseDirectives } from './parseDirectives'
 
 /**
  * @desc: 生成apaas路由
@@ -51,10 +53,15 @@ export function VitePluginApaasRoutes(): PluginOption {
   return {
     name: 'vite-plugin-apaas-routes',
     apply: 'build',
+    enforce: 'pre',
     async transform(code, id) {
+      // 测试遍历所有vue文件
+      if (id.endsWith('.vue')) {
+        parseDirectives(code, id)
+      }
+
       if (id.endsWith('src/router/routes.ts')) {
         content = await generateApaasRoutes(id, code, { ctx: this, variableName: 'asyncRoutes' })
-
         return {
           code,
           map: null,
@@ -63,6 +70,8 @@ export function VitePluginApaasRoutes(): PluginOption {
       return null
     },
     closeBundle() {
+      // eslint-disable-next-line no-console
+      console.log('vue 文件中的指令', directivesMap)
       try {
         generateFile(content)
       }

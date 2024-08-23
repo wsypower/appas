@@ -34,7 +34,7 @@
   "scripts": {
     "build": "unbuild",
     "clean": "pnpm rimraf node_modules dist .turbo",
-    "stub": "unbuild --stub",
+    "stub": "unbuild --stub --sourcemap",
     "link": "pnpm link --global"
   },
   "peerDependencies": {

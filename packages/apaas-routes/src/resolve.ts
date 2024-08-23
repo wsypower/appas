@@ -78,7 +78,6 @@ export async function resolveModule(
                   if (!resolved) {
                     return
                   }
-
                   const dependency = await ctx.load({ id: resolved.id })
                   if (dependency && dependency.code) {
                     const targetNode = resolveExternalModule(dependency.id, dependency.code)
