@@ -12,61 +12,99 @@ export function transformCodeToApaas(routes: RoutesInfo) {
     return
   }
 
+  // 优先处理 meta
   traverse(
     routes.node,
     {
       ObjectExpression(path) {
         const { node } = path
 
-        // 处理 meta
-        const metaProperty = node.properties.find((p) => {
-          return t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }) && t.isObjectExpression(p.value)
-        })
-        if (metaProperty && t.isObjectProperty(metaProperty) && t.isObjectExpression(metaProperty.value)) {
+        const tasks: Array<() => void> = []
+
+        node.properties.forEach((property) => {
+          if (
+            !t.isObjectProperty(property)
+            || !t.isIdentifier(property.key, { name: 'meta' })
+            || !t.isObjectExpression(property.value)
+          ) {
+            return
+          }
+
           // sidebar 为 false，删除该路由
-          const sidebarPropertyIsFalse = metaProperty.value.properties.find((p) => {
+          const sidebarPropertyIsFalse = property.value.properties.find((p) => {
             return t.isObjectProperty(p)
               && t.isIdentifier(p.key, { name: 'sidebar' })
               && t.isBooleanLiteral(p.value, { value: false })
           })
+
           if (sidebarPropertyIsFalse) {
             path.remove()
             return
           }
 
           // 重命名属性名称
-          metaProperty.value.properties.forEach((p) => {
+          property.value.properties.forEach((p) => {
             if (!t.isObjectProperty(p)) {
               return
             }
 
             // 添加 permCode
             if (t.isIdentifier(p.key, { name: 'auth' })) {
-              node.properties.unshift(t.objectProperty(t.identifier('permCode'), p.value))
+              tasks.push(() => {
+                node.properties.unshift(t.objectProperty(t.identifier('permCode'), p.value))
+              })
             }
 
             // 添加 permName
             if (t.isIdentifier(p.key, { name: 'title' })) {
-              node.properties.unshift(t.objectProperty(t.identifier('permName'), p.value))
+              tasks.push(() => {
+                node.properties.unshift(t.objectProperty(t.identifier('permName'), p.value))
+              })
             }
           })
+        })
 
-          // 移除 meta
-          node.properties = node.properties.filter((p) => {
-            return !(t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }))
-          })
-        }
+        tasks.forEach(task => task())
+
+        // 移除 meta
+        node.properties = node.properties.filter((p) => {
+          return !(t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }))
+        })
+      },
+    },
+    routes.scope,
+    null,
+    routes.parentPath,
+  )
+
+  traverse(
+    routes.node,
+    {
+      ObjectExpression(path) {
+        const { node } = path
+
+        // children 为空数组时，移除 children 字段
+        node.properties = node.properties.filter((property) => {
+          return !(t.isObjectProperty(property)
+            && t.isIdentifier(property.key, { name: 'children' })
+            && t.isArrayExpression(property.value)
+            && (property.value.elements.length === 0))
+        })
 
         // 添加 permPath
         node.properties.forEach((property) => {
           // 重命名 path 为 permPath
-          if (!t.isObjectProperty(property) || !t.isIdentifier(property.key, { name: 'path' })) {
+          if (
+            !t.isObjectProperty(property)
+            || !t.isIdentifier(property.key, { name: 'path' })
+            || !t.isStringLiteral(property.value)
+          ) {
             return
           }
           property.key.name = 'permPath'
 
           // 拼接 permPath
-          if (!t.isStringLiteral(property.value) || property.value.value.startsWith('/')) {
+          if (property.value.value.startsWith('/')) {
             return
           }
           const parentPath = path.findParent(p => p.isObjectExpression())
@@ -92,11 +130,7 @@ export function transformCodeToApaas(routes: RoutesInfo) {
 
           // 如果是叶子节点，则为其添加按钮级路由
           const childrenProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'children' }))
-          if (!childrenProperty || (
-            t.isObjectProperty(childrenProperty)
-            && t.isArrayExpression(childrenProperty.value)
-            && childrenProperty.value.elements.length === 0)
-          ) {
+          if (!childrenProperty) {
             const leafNode = t.cloneNode(node)
             leafNode.properties = leafNode.properties.filter((p) => {
               return !(
