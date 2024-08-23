@@ -18,17 +18,20 @@ export function transformCodeToApaas(routes: RoutesInfo) {
       ObjectExpression(path) {
         const { node } = path
 
-        const metaProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }))
+        // 处理 meta
+        const metaProperty = node.properties.find((p) => {
+          return t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }) && t.isObjectExpression(p.value)
+        })
         if (metaProperty && t.isObjectProperty(metaProperty) && t.isObjectExpression(metaProperty.value)) {
-          // sidebar 为 false 时，删除该路由
-          const sidebarProperty = metaProperty.value.properties.find((p) => {
+          // sidebar 为 false，删除该路由
+          const sidebarPropertyIsFalse = metaProperty.value.properties.find((p) => {
             return t.isObjectProperty(p)
               && t.isIdentifier(p.key, { name: 'sidebar' })
               && t.isBooleanLiteral(p.value, { value: false })
           })
-
-          if (sidebarProperty) {
+          if (sidebarPropertyIsFalse) {
             path.remove()
+            return
           }
 
           // 重命名属性名称
@@ -55,23 +58,29 @@ export function transformCodeToApaas(routes: RoutesInfo) {
         }
 
         // 添加 permPath
-        node.properties.forEach((p) => {
-          if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'path' })) {
-            p.key.name = 'permPath'
+        node.properties.forEach((property) => {
+          // 重命名 path 为 permPath
+          if (!t.isObjectProperty(property) || !t.isIdentifier(property.key, { name: 'path' })) {
+            return
+          }
+          property.key.name = 'permPath'
 
-            if (t.isStringLiteral(p.value) && !p.value.value.startsWith('/')) {
-              const parentPath = path.findParent(p => p.isObjectExpression())
-              if (parentPath && t.isObjectExpression(parentPath.node)) {
-                const parentRoutePathProperty = parentPath.node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permPath' }))
-                if (
-                  parentRoutePathProperty
-                  && t.isObjectProperty(parentRoutePathProperty)
-                  && t.isStringLiteral(parentRoutePathProperty.value)
-                ) {
-                  const routePath = `${parentRoutePathProperty.value.value}/${p.value.value}`.replace('\/\/', '\/')
-                  p.value = t.stringLiteral(routePath)
-                }
-              }
+          // 拼接 permPath
+          if (!t.isStringLiteral(property.value) || property.value.value.startsWith('/')) {
+            return
+          }
+          const parentPath = path.findParent(p => p.isObjectExpression())
+          if (parentPath && t.isObjectExpression(parentPath.node)) {
+            const parentRoutePathProperty = parentPath.node.properties.find((p) => {
+              return t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permPath' }) && t.isStringLiteral(p.value)
+            })
+            if (
+              parentRoutePathProperty
+              && t.isObjectProperty(parentRoutePathProperty)
+              && t.isStringLiteral(parentRoutePathProperty.value)
+            ) {
+              const routePath = `${parentRoutePathProperty.value.value}/${property.value.value}`.replace('\/\/', '\/')
+              property.value = t.stringLiteral(routePath)
             }
           }
         })
@@ -82,18 +91,19 @@ export function transformCodeToApaas(routes: RoutesInfo) {
           node.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('sider')))
 
           // 如果是叶子节点，则为其添加按钮级路由
-          const children = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'children' }))
-          const isLeaf = !children || (children && t.isObjectProperty(children) && t.isArrayExpression(children.value) && children.value.elements.length === 0)
-          if (isLeaf) {
+          const childrenProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'children' }))
+          if (!childrenProperty || (
+            t.isObjectProperty(childrenProperty)
+            && t.isArrayExpression(childrenProperty.value)
+            && childrenProperty.value.elements.length === 0)
+          ) {
             const leafNode = t.cloneNode(node)
             leafNode.properties = leafNode.properties.filter((p) => {
-              if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permPath' })) {
-                return false
-              }
-              if (t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'permType' })) {
-                return false
-              }
-              return true
+              return !(
+                t.isObjectProperty(p)
+                && t.isIdentifier(p.key)
+                && ['permPath', 'permType'].includes(p.key.name)
+              )
             })
             leafNode.properties.unshift(t.objectProperty(t.identifier('permType'), t.stringLiteral('module')))
             node.properties.push(t.objectProperty(t.identifier('children'), t.arrayExpression([leafNode])))
