@@ -57,39 +57,43 @@ export async function resolveModule(
     {
       ObjectProperty(path) {
         const { node, scope } = path
-        if (!t.isIdentifier(node.key)) {
+        if (!t.isIdentifier(node.key, { name: 'children' }) || !t.isArrayExpression(node.value)) {
           return
         }
 
-        if (node.key.name === 'children' && t.isArrayExpression(node.value)) {
-          node.value.elements.forEach((n, index) => {
-            if (!t.isIdentifier(n)) {
-              return
-            }
-            asyncTasks.push((async () => {
-              const binding = scope.getBinding(n.name)
-              if (binding && binding.path.isImportDefaultSpecifier()) {
-                const importDecl = binding.path.parent
+        node.value.elements.forEach((n, index) => {
+          if (!t.isIdentifier(n)) {
+            return
+          }
 
-                if (t.isImportDeclaration(importDecl)) {
-                  const source = importDecl.source.value
+          const task = (async () => {
+            const binding = scope.getBinding(n.name)
+            if (binding && binding.path.isImportDefaultSpecifier()) {
+              const importDecl = binding.path.parent
 
-                  const resolved = await ctx.resolve(source, id)
-                  if (!resolved) {
-                    return
-                  }
-                  const dependency = await ctx.load({ id: resolved.id })
-                  if (dependency && dependency.code) {
-                    const targetNode = resolveExternalModule(dependency.id, dependency.code)
-                    if (t.isArrayExpression(node.value)) {
-                      node.value.elements[index] = targetNode!
-                    }
-                  }
+              if (t.isImportDeclaration(importDecl)) {
+                const source = importDecl.source.value
+
+                const resolved = await ctx.resolve(source, id)
+                if (!resolved) {
+                  return
+                }
+
+                const dependency = await ctx.load({ id: resolved.id })
+                if (!dependency?.code) {
+                  return
+                }
+
+                const targetNode = resolveExternalModule(dependency.id, dependency.code)
+                if (t.isArrayExpression(node.value)) {
+                  node.value.elements[index] = targetNode!
                 }
               }
-            })())
-          })
-        }
+            }
+          })()
+
+          asyncTasks.push(task)
+        })
       },
     },
     routes.scope,
