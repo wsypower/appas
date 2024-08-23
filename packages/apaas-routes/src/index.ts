@@ -55,9 +55,6 @@ export function VitePluginApaasRoutes(): PluginOption {
       if (id.endsWith('src/router/routes.ts')) {
         content = await generateApaasRoutes(id, code, { ctx: this, variableName: 'asyncRoutes' })
 
-        // 临时测试用
-        generateFile(content)
-
         return {
           code,
           map: null,
