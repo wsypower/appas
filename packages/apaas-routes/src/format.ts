@@ -20,7 +20,7 @@ export function transformCodeToApaas(routes: RoutesInfo) {
 
         const metaProperty = node.properties.find(p => t.isObjectProperty(p) && t.isIdentifier(p.key, { name: 'meta' }))
         if (metaProperty && t.isObjectProperty(metaProperty) && t.isObjectExpression(metaProperty.value)) {
-        // sidebar 为 false 时，删除该路由
+          // sidebar 为 false 时，删除该路由
           const sidebarProperty = metaProperty.value.properties.find((p) => {
             return t.isObjectProperty(p)
               && t.isIdentifier(p.key, { name: 'sidebar' })
@@ -31,7 +31,7 @@ export function transformCodeToApaas(routes: RoutesInfo) {
             path.remove()
           }
 
-          // 重命名
+          // 重命名属性名称
           metaProperty.value.properties.forEach((p) => {
             if (!t.isObjectProperty(p)) {
               return
@@ -109,6 +109,7 @@ export function transformCodeToApaas(routes: RoutesInfo) {
         const { node } = path
         const transformKeys = ['permType', 'permPath', 'permName', 'permCode', 'permDes', 'children']
 
+        // 移除多余的属性
         if (!t.isIdentifier(node.key) || !transformKeys.includes(node.key.name)) {
           path.remove()
         }
@@ -181,5 +182,7 @@ function generateApaasJSON(node: t.ArrayExpression) {
     },
   })
 
-  return generate(ast).code
+  // 去掉最外层的数组，只返回对象
+  const code = generate(ast).code
+  return code.replace(/^\[\s*|\s*\];?$/g, '')
 }
