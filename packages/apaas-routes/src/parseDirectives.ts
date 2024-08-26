@@ -31,7 +31,7 @@ function parseDirectives(code: string, id: string) {
     if (node.props) {
       node.props.forEach((prop: any) => {
         if (prop.type === 7 && prop.name === 'auth') {
-          arr.push(prop.exp.content)
+          arr.push(prop.exp.content.replace(/['"]/g, ''))
         }
       })
     }
