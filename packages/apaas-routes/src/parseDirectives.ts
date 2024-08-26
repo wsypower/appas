@@ -1,14 +1,14 @@
 import { parse as parseVue } from '@vue/compiler-sfc'
-import { compile as compileTemplate } from '@vue/compiler-dom'
+import type { TemplateChildNode } from '@vue/compiler-dom'
+import { NodeTypes, compile } from '@vue/compiler-dom'
 
 const directivesMap = new Map<string, string[]>()
 
 /**
- * TODO: 类型先补了any,后续再优化,补充类型就会少遍历节点
  * TODO: 只处理了静态值
  */
 function parseDirectives(code: string, id: string) {
-  const arr = directivesMap.get(id) || directivesMap.set(id, []).get(id)!
+  const authCodes = directivesMap.get(id) || directivesMap.set(id, []).get(id)!
 
   // 解析 .vue 文件
   const { descriptor } = parseVue(code)
@@ -20,40 +20,43 @@ function parseDirectives(code: string, id: string) {
   const templateContent = descriptor.template.content
 
   // 编译模板为 AST
-  const { ast } = compileTemplate(templateContent)
+  const { ast } = compile(templateContent)
 
   // 快速判断是否有 auth 指令
   if (!ast.directives.includes('auth'))
     return
 
-  function collectInstruction(node: any) {
-    // 如果节点有 props，检查其中的指令
-    if (node.props) {
-      node.props.forEach((prop: any) => {
-        if (prop.type === 7 && prop.name === 'auth') {
-          arr.push(prop.exp.content.replace(/['"]/g, ''))
+  function collectInstruction(node: TemplateChildNode) {
+    // 如果节点是 ELEMENT
+    if (node.type === NodeTypes.ELEMENT) {
+      node.props.forEach((prop) => {
+        if (
+          prop.type === NodeTypes.DIRECTIVE
+          && prop.name === 'auth'
+          && prop.exp?.type === NodeTypes.SIMPLE_EXPRESSION
+        ) {
+          const propValue = prop.exp.content
+          authCodes.push(propValue.replace(/['"]/g, ''))
         }
       })
     }
 
-    // 如果节点有 children，递归遍历子节点
-    if (node.children) {
+    // 如果节点是 IF, 遍历它的 branches
+    if (node.type === NodeTypes.IF) {
+      node.branches.forEach(collectInstruction)
+    }
+
+    // 如果节点是 FOR/IF_BRANCH/ELEMENT, 遍历它的子节点
+    if (
+      node.type === NodeTypes.ELEMENT
+      || node.type === NodeTypes.FOR
+      || node.type === NodeTypes.IF_BRANCH
+    ) {
       node.children.forEach(collectInstruction)
     }
-
-    // 如果节点是 IF (type === 9)，遍历它的 branches
-    if (node.type === 9 /* IF */) {
-      node.branches.forEach((branch: any) => {
-        collectInstruction(branch)
-      })
-    }
-
-    // 如果节点是 FOR (type === 11)，遍历它的子节点
-    if (node.type === 11 /* FOR */) {
-      collectInstruction(node.children[0])
-    }
   }
-  ast.children.forEach(element => collectInstruction(element))
+
+  ast.children.forEach(collectInstruction)
 }
 
 export {
