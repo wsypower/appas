@@ -6,7 +6,7 @@ import type * as t from '@babel/types'
 import generator from '@babel/generator'
 
 export function userStoreAdapter(): Plugin {
-  const adapeter = template.ast(`
+  const adapeter = template.ast`
     async function getPermissions() {
       const apaasAuth = JSON.parse(sessionStorage.getItem('LOGIN_USER_BUTTON_AUTH') || '[]');
       const res = apaasAuth.map((item) => {
@@ -16,7 +16,7 @@ export function userStoreAdapter(): Plugin {
       user.permissions = res;
       return user.permissions;
     }
-`)
+`
 
   return {
     name: 'user-store-adapter',

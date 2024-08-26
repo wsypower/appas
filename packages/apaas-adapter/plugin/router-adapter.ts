@@ -30,14 +30,14 @@ export function routerAdapter(): Plugin {
         ast.program.body.splice(importPath + 1, 0, newImport)
 
         // 使用 template 来生成修改后的路由历史配置
-        const createRouterTemplate = template.ast(`
+        const createRouterTemplate = template.ast`
           createRouter({
             history: createWebHistory(window?.bootConfig?.production?.VUE_BASE_ROUTE),
             routes: constantRoutes,
             strict: true,
             scrollBehavior: () => ({ left: 0, top: 0 }),
           });
-        `) as t.ExpressionStatement
+        ` as t.ExpressionStatement
 
         traverse(ast, {
           CallExpression(path) {

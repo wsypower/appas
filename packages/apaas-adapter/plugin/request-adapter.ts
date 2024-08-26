@@ -6,12 +6,12 @@ import * as t from '@babel/types'
 import generator from '@babel/generator'
 
 export function requestAdapter(): Plugin {
-  const case401Body = template.ast(`
+  const case401Body = template.ast`
   window.microApp.dispatch({ type: 'logout' });
   localStorage.clear();
   sessionStorage.clear();
   return;
-`) as t.Statement[]
+` as t.Statement[]
 
   const case401 = t.switchCase(t.numericLiteral(401), case401Body)
 
