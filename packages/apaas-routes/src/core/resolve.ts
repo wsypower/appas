@@ -2,10 +2,10 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import type { Rollup } from 'vite'
-import type { RoutesInfo } from './types'
+import type { RoutesInfo } from '../types'
 
 /**
- * @desc: 读取文件导出的路由
+ * 读取文件导出的路由
  */
 export function readExportedRoutes(code: string, variableName: string) {
   const ast = parse(code, {
@@ -39,7 +39,7 @@ export function readExportedRoutes(code: string, variableName: string) {
 }
 
 /**
- * @desc: 将依赖的模块解析并替换到指定位置
+ * 将依赖的模块解析并替换到指定位置
  */
 export async function resolveModule(
   routes: RoutesInfo,
@@ -105,7 +105,7 @@ export async function resolveModule(
 }
 
 /**
- * @desc: 读取外部依赖
+ * 读取外部依赖
  */
 function resolveExternalModule(
   id: string,

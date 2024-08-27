@@ -2,12 +2,10 @@ import { parse as parseVue } from '@vue/compiler-sfc'
 import type { TemplateChildNode } from '@vue/compiler-dom'
 import { NodeTypes, compile } from '@vue/compiler-dom'
 
-const directivesMap = new Map<string, string[]>()
-
 /**
  * TODO: 只处理了静态值
  */
-function parseDirectives(code: string, id: string) {
+export function parseDirectives(id: string, code: string, directivesMap: Map<string, string[]>) {
   const authCodes = directivesMap.get(id) || directivesMap.set(id, []).get(id)!
 
   // 解析 .vue 文件
@@ -57,9 +55,4 @@ function parseDirectives(code: string, id: string) {
   }
 
   ast.children.forEach(collectInstruction)
-}
-
-export {
-  directivesMap,
-  parseDirectives,
 }
