@@ -27,7 +27,7 @@
   "scripts": {
     "build": "unbuild",
     "clean": "pnpm rimraf node_modules dist .turbo",
-    "stub": "unbuild --stub"
+    "stub": "unbuild --stub --sourcemap"
   },
   "peerDependencies": {
     "vite": "^5.4.0"
@@ -37,6 +37,9 @@
     "@babel/parser": "^7.25.3",
     "@babel/traverse": "^7.25.3",
     "@babel/types": "^7.25.2",
+    "@vue/compiler-core": "^3.4.38",
+    "@vue/compiler-dom": "^3.4.38",
+    "@vue/compiler-sfc": "^3.4.38",
     "consola": "^3.2.3"
   },
   "devDependencies": {

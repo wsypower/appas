@@ -4,13 +4,16 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import type { PluginOption, Rollup } from 'vite'
 import consola from 'consola'
 import * as t from '@babel/types'
-import { transformCodeToApaas } from './format'
+
 import { readExportedRoutes, resolveModule } from './resolve'
+import { transformCodeToApaas } from './format'
+import { directivesMap, parseDirectives } from './parseDirectives'
+import type { RoutesInfo } from './types'
 
 /**
  * @desc: 生成apaas路由
  */
-async function generateApaasRoutes(
+async function resolveApaasRoutes(
   id: string,
   code: string,
   { ctx, variableName }: { ctx: Rollup.TransformPluginContext, variableName: string },
@@ -25,8 +28,7 @@ async function generateApaasRoutes(
   // 将依赖的模块解析并替换到指定位置
   await resolveModule(routes, ctx, id)
 
-  // 遍历并格式化成 apaas 的格式
-  return transformCodeToApaas(routes)
+  return routes
 }
 
 /**
@@ -46,24 +48,29 @@ function generateFile(content?: string) {
 }
 
 export function VitePluginApaasRoutes(): PluginOption {
-  let content: string | undefined
+  let routes: RoutesInfo | undefined
 
   return {
     name: 'vite-plugin-apaas-routes',
     apply: 'build',
+    enforce: 'pre',
     async transform(code, id) {
-      if (id.endsWith('src/router/routes.ts')) {
-        content = await generateApaasRoutes(id, code, { ctx: this, variableName: 'asyncRoutes' })
-
-        return {
-          code,
-          map: null,
-        }
+      // 测试遍历所有vue文件
+      if (id.endsWith('.vue')) {
+        parseDirectives(code, id)
       }
-      return null
+
+      if (id.endsWith('src/router/routes.ts')) {
+        routes = await resolveApaasRoutes(id, code, { ctx: this, variableName: 'asyncRoutes' })
+      }
     },
     closeBundle() {
+      if (!routes) {
+        return
+      }
+
       try {
+        const content = transformCodeToApaas(routes, directivesMap)
         generateFile(content)
       }
       catch (error) {
