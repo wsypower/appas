@@ -7,7 +7,11 @@ import type { RoutesInfo } from '../types'
 /**
  * 将 `routes` 格式化成 `apaas` 的要求
  */
-export function transformCodeToApaas(routes: RoutesInfo, directivesMap: Map<string, string[]>) {
+export function transformCodeToApaas(
+  routes: RoutesInfo,
+  directivesMap: Map<string, string[]>,
+  excludes: string[] = [],
+) {
   if (!routes.node || !t.isArrayExpression(routes.node)) {
     return
   }
@@ -18,6 +22,23 @@ export function transformCodeToApaas(routes: RoutesInfo, directivesMap: Map<stri
     {
       ObjectExpression(path) {
         const { node } = path
+
+        // 根据 meta.auth 和 excludes 判断是否移除该路由
+        node.properties.forEach((property) => {
+          if (
+            t.isObjectProperty(property)
+            && t.isIdentifier(property.key, { name: 'meta' })
+            && t.isObjectExpression(property.value)
+            && property.value.properties.some((p) => {
+              return t.isObjectProperty(p)
+                && t.isIdentifier(p.key, { name: 'auth' })
+                && t.isStringLiteral(p.value)
+                && excludes.includes(p.value.value)
+            })
+          ) {
+            path.remove()
+          }
+        })
 
         const tasks: Array<() => void> = []
 
