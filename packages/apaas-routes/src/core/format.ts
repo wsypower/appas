@@ -2,10 +2,10 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import generate from '@babel/generator'
-import type { RoutesInfo } from './types'
+import type { RoutesInfo } from '../types'
 
 /**
- * @desc: 将 `routes` 格式化成 `apaas` 的要求
+ * 将 `routes` 格式化成 `apaas` 的要求
  */
 export function transformCodeToApaas(routes: RoutesInfo, directivesMap: Map<string, string[]>) {
   if (!routes.node || !t.isArrayExpression(routes.node)) {
@@ -310,7 +310,7 @@ export function transformCodeToApaas(routes: RoutesInfo, directivesMap: Map<stri
 }
 
 /**
- * @desc: 将格式化后 `ast` 放入到特定的JSON
+ * 将格式化后 `ast` 放入到特定的JSON
  */
 function generateApaasJSON(node: t.ArrayExpression) {
   const routes = `[{
