@@ -3,6 +3,7 @@ import traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import type { Rollup } from 'vite'
 import type { RoutesInfo } from '../types'
+import { propertyIsChildren } from './utils'
 
 /**
  * 读取文件导出的路由
@@ -57,7 +58,8 @@ export async function resolveModule(
     {
       ObjectProperty(path) {
         const { node, scope } = path
-        if (!t.isIdentifier(node.key, { name: 'children' }) || !t.isArrayExpression(node.value)) {
+
+        if (!propertyIsChildren(node)) {
           return
         }
 
