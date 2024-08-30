@@ -9,19 +9,25 @@ export function createDocker(): Plugin {
   return {
     name: 'create-docker',
     async buildEnd() {
-      const file = {
-        'dockerfile': ctx.createDockerConfig(),
-        'nginx-default.conf': ctx.createNginxConfig(),
-      }
-
       const targetDir = resolve(process.cwd(), ctx.apaasOutputDir)
+
+      const file = {
+        'dockerfile': [
+          ctx.createDockerConfig(),
+          resolve(process.cwd()),
+        ],
+        'nginx-default.conf': [
+          ctx.createNginxConfig(),
+          targetDir,
+        ],
+      }
       mkdirSync(targetDir, { recursive: true })
 
       for (const key of Object.keys(file) as Array<keyof typeof file>) {
-        const content = file[key]
-        const outputFileName = resolve(targetDir, key)
+        const content = file[key][0]
+        const outputFileName = resolve(file[key][1], key)
         writeFileSync(outputFileName, content)
-        consola.success(`[vite-plugin-apaas] ${key} has been generated in ${join(targetDir, key)}`)
+        consola.success(`[vite-plugin-apaas] ${key} has been generated in ${join(file[key][1], key)}`)
       }
     },
   }
