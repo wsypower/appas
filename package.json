@@ -1,7 +1,7 @@
 {
   "name": "@pubinfo/monorepo",
   "type": "module",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "packageManager": "pnpm@8.15.6",
   "description": "一个初始化模板",
