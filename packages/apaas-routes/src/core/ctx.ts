@@ -48,10 +48,10 @@ export function createContext(options: Options) {
   /**
    * 格式化代码
    */
-  function transformCode() {
+  async function transformCode() {
     // 默认移除黑白名单页面
     const excludes = ['blacklist', 'whitelist']
-    return transformCodeToApaas(routes, directivesMap, excludes)
+    return await transformCodeToApaas(routes, directivesMap, excludes)
   }
 
   return {

@@ -2,9 +2,9 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import generate from '@babel/generator'
+import prettier from 'prettier'
 import type { RoutesInfo } from '../types'
 import { permTypeIs, propertyIs, propertyIsChildren } from './utils'
-
 /**
  * 将 `routes` 格式化成 `apaas` 的要求
  */
@@ -252,7 +252,7 @@ export function transformCodeToApaas(
 /**
  * 将格式化后 `ast` 放入到特定的JSON
  */
-function generateApaasJSON(node: t.ArrayExpression) {
+async function generateApaasJSON(node: t.ArrayExpression) {
   const routes = `[{
     permType: "header",
     permName: "权限管理系统",
@@ -293,6 +293,16 @@ function generateApaasJSON(node: t.ArrayExpression) {
 
   // 将数组格式化成JSON的格式
   traverse(ast, {
+    enter(path) {
+      // 移除前导注释
+      if (path.node.leadingComments) {
+        path.node.leadingComments = null
+      }
+      // 移除尾随注释
+      if (path.node.trailingComments) {
+        path.node.trailingComments = null
+      }
+    },
     ObjectProperty(path) {
       // 将键名转换为字符串
       if (t.isIdentifier(path.node.key)) {
@@ -302,6 +312,7 @@ function generateApaasJSON(node: t.ArrayExpression) {
   })
 
   // 去掉最外层的数组，只返回对象
-  const code = generate(ast).code
-  return code.replace(/^\[\s*|\s*\];?$/g, '')
+  const code = generate(ast).code.replace(/^\[\s*|\s*\];?$/g, '')
+  const prettierCode = await prettier.format(code, { parser: 'json' })
+  return prettierCode
 }

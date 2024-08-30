@@ -40,11 +40,11 @@
     "@vue/compiler-core": "^3.4.38",
     "@vue/compiler-dom": "^3.4.38",
     "@vue/compiler-sfc": "^3.4.38",
-    "consola": "^3.2.3"
+    "consola": "^3.2.3",
+    "prettier": "^3.3.3"
   },
   "devDependencies": {
     "@types/babel__generator": "^7.6.8",
     "@types/babel__traverse": "^7.20.6"
-
   }
 }

@@ -35,9 +35,9 @@ export function VitePluginApaasRoutes(): PluginOption {
       ctx.resolveDirectives(id, code)
       await ctx.resolveRoutes(id, code, this)
     },
-    closeBundle() {
+    async closeBundle() {
       try {
-        const content = ctx.transformCode()
+        const content = await ctx.transformCode()
         generateFile(content)
       }
       catch (error) {
