@@ -5,6 +5,7 @@ import generate from '@babel/generator'
 import prettier from 'prettier'
 import type { RoutesInfo } from '../types'
 import { permTypeIs, propertyIs, propertyIsChildren } from './utils'
+import CONFIG from './config'
 /**
  * 将 `routes` 格式化成 `apaas` 的要求
  */
@@ -253,12 +254,13 @@ export function transformCodeToApaas(
  * 将格式化后 `ast` 放入到特定的JSON
  */
 async function generateApaasJSON(node: t.ArrayExpression) {
+  const title = CONFIG.title ?? '权限管理系统'
   const routes = `[{
     permType: "header",
-    permName: "权限管理系统",
+    permName: "${title}",
     permPath: "/",
     permCode: "",
-    permDes: "腾龙权限管理系统",
+    permDes: "${title}",
     picPath: "",
     children: [],
   }]`

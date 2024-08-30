@@ -3,8 +3,9 @@ import { cwd, exit } from 'node:process'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import type { PluginOption } from 'vite'
 import consola from 'consola'
+import { loadEnv } from 'vite'
 import { createContext } from './core/ctx'
-
+import CONFIG from './core/config'
 /**
  * @desc: 生成指定JSON文件
  */
@@ -31,6 +32,11 @@ export function VitePluginApaasRoutes(): PluginOption {
     name: 'vite-plugin-apaas-routes',
     apply: 'build',
     enforce: 'pre',
+    config(_, { mode }) {
+      const root = cwd()
+      const { VITE_APP_TITLE } = loadEnv(mode, root)
+      CONFIG.title = VITE_APP_TITLE
+    },
     async transform(code, id) {
       ctx.resolveDirectives(id, code)
       await ctx.resolveRoutes(id, code, this)

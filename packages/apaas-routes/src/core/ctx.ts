@@ -1,6 +1,7 @@
 import consola from 'consola'
 import * as t from '@babel/types'
 import type { Rollup } from 'vite'
+
 import type { Options, RoutesInfo } from '../types'
 import { transformCodeToApaas } from './format'
 import { readExportedRoutes, resolveModule } from './resolve'
