@@ -1,6 +1,7 @@
 import process from 'node:process'
 import { VitePluginApaasAdapter, defineConfig } from '@pubinfo/apaas-adapter'
 import { VitePluginApaasRoutes } from '@pubinfo/apaas-routes'
+import { VitePluginApaasRouterRepair } from '@pubinfo/apaas-router-repair'
 
 // TODO:堆栈过深跳过类型检查
 function VitePluginApaas(): any {
@@ -9,6 +10,7 @@ function VitePluginApaas(): any {
   return isApaas
     ? [
         VitePluginApaasAdapter(),
+        VitePluginApaasRouterRepair(),
         VitePluginApaasRoutes(),
       ]
     : []

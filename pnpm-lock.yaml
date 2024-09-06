@@ -71,6 +71,9 @@ importers:
       '@pubinfo/apaas-adapter':
         specifier: workspace:^
         version: link:../apaas-adapter
+      '@pubinfo/apaas-router-repair':
+        specifier: workspace:^
+        version: link:../apaas-router-repair
       '@pubinfo/apaas-routes':
         specifier: workspace:^
         version: link:../apaas-routes
@@ -120,6 +123,46 @@ importers:
       '@types/babel__template':
         specifier: ^7.4.4
         version: 7.4.4
+      '@types/babel__traverse':
+        specifier: ^7.20.6
+        version: 7.20.6
+
+  packages/apaas-router-repair:
+    dependencies:
+      '@babel/generator':
+        specifier: ^7.25.0
+        version: 7.25.0
+      '@babel/parser':
+        specifier: ^7.25.3
+        version: 7.25.3
+      '@babel/traverse':
+        specifier: ^7.25.3
+        version: 7.25.3
+      '@babel/types':
+        specifier: ^7.25.2
+        version: 7.25.2
+      '@vue/compiler-core':
+        specifier: ^3.4.38
+        version: 3.4.38
+      '@vue/compiler-dom':
+        specifier: ^3.4.38
+        version: 3.4.38
+      '@vue/compiler-sfc':
+        specifier: ^3.4.38
+        version: 3.4.38
+      consola:
+        specifier: ^3.2.3
+        version: 3.2.3
+      prettier:
+        specifier: ^3.3.3
+        version: 3.3.3
+      vite:
+        specifier: ^5.4.0
+        version: 5.4.1(@types/node@22.4.1)
+    devDependencies:
+      '@types/babel__generator':
+        specifier: ^7.6.8
+        version: 7.6.8
       '@types/babel__traverse':
         specifier: ^7.20.6
         version: 7.20.6

@@ -27,6 +27,7 @@ export function VitePluginApaasAdapter(): PluginOption {
 
   return {
     name: 'vite-plugin-apaas-adapter',
+    apply: 'build',
     enforce: 'pre',
     async config() {
       const { config: apassUserConfig } = await loadConfig<ApaasConfig>({
