@@ -1,7 +1,7 @@
 {
   "name": "@pubinfo/apaas",
   "type": "module",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "apaas vite适配插件",
   "author": "",
   "license": "MIT",
