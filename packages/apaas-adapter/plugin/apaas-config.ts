@@ -50,12 +50,15 @@ export function apaasConfig(): Plugin {
       const modifiedHtml = html
         .replace('<link rel="stylesheet" href="/loading.css" />', '')
         .replace('<link rel="stylesheet" href="/browser_upgrade/index.css" />', '')
-        .replace(
-          /<div id="app">[\s\S]*?<\/div>\s*<script>/,
-          '<div id="app"></div><script src="/configs/micro-service-config.js"></script><script>',
-        )
 
-      return modifiedHtml
+      return {
+        html: modifiedHtml,
+        tags: [{
+          tag: 'script',
+          attrs: { src: './configs/micro-service-config.js' },
+          injectTo: 'body',
+        }],
+      }
     },
 
     // 处理模块解析
@@ -63,7 +66,7 @@ export function apaasConfig(): Plugin {
       const fileContent = ctx.createMicroServiceConfig()
       this.emitFile({
         type: 'asset',
-        fileName: 'config/micro-service-config.js',
+        fileName: 'configs/micro-service-config.js',
         source: fileContent,
       })
     },

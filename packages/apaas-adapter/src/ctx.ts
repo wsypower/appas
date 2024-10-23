@@ -36,7 +36,7 @@ window.bootConfig = {
   createDockerConfig(): string {
     return `
 FROM nginx:1.26-alpine
-COPY ./apaas/nginx-default.conf /etc/nginx/conf.d/nginx-default.conf
+COPY ./apaas/nginx-default.conf /etc/nginx/conf.d/default.conf
 COPY ./${this.outDir} /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
