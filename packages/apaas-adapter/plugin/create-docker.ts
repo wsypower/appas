@@ -16,8 +16,12 @@ export function createDocker(): Plugin {
           ctx.createDockerConfig(),
           resolve(process.cwd()),
         ],
-        'nginx-default.conf': [
+        'nginx.conf': [
           ctx.createNginxConfig(),
+          targetDir,
+        ],
+        'nginx-default.conf': [
+          ctx.createNginxDefaultConfig(),
           targetDir,
         ],
       }
